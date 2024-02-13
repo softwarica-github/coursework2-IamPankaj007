@@ -75,15 +75,54 @@ file_menu.add_command(label="Save As", command=lambda: save_as_file())
 file_menu.add_separator()
 file_menu.add_command(label="Exit", command=app.quit)
 
-menu_bar = Menu(app)
-app.config(menu=menu_bar)
+# Edit menu
+edit_menu = Menu(menu_bar, tearoff=0)
+menu_bar.add_cascade(label="Edit", menu=edit_menu)
+edit_menu.add_command(label="Undo", command=lambda: text_area.edit_undo())
+edit_menu.add_command(label="Redo", command=lambda: text_area.edit_redo())
+edit_menu.add_separator()
+edit_menu.add_command(label="Cut", command=lambda: text_area.event_generate("<<Cut>>"))
+edit_menu.add_command(label="Copy", command=lambda: text_area.event_generate("<<Copy>>"))
+edit_menu.add_command(label="Paste", command=lambda: text_area.event_generate("<<Paste>>"))
 
-file_menu = Menu(menu_bar, tearoff=0)
-menu_bar.add_cascade(label="File", menu=file_menu)
-file_menu.add_command(label="New", command=lambda: new_file())
-file_menu.add_command(label="Open", command=lambda: open_file())
-file_menu.add_command(label="Save", command=lambda: save_file())
-file_menu.add_command(label="Save As", command=lambda: save_as_file())
-file_menu.add_separator()
-file_menu.add_command(label="Exit", command=app.quit)
+# Settings menu for encryption
+settings_menu = Menu(menu_bar, tearoff=0)
+menu_bar.add_cascade(label="Settings", menu=settings_menu)
+settings_menu.add_command(label="Set Encryption Key", command=encryption_key_window)
+
+# Help menu
+help_menu = Menu(menu_bar, tearoff=0)
+menu_bar.add_cascade(label="Help", menu=help_menu)
+help_menu.add_command(label="About", command=lambda: about())
+
+# Status bar
+status_bar = tk.Label(app, text="Ready", bd=1, relief=tk.SUNKEN, anchor=tk.W)
+status_bar.pack(side=tk.BOTTOM, fill=tk.X)
+
+# Text area with scrollbar
+text_scroll = Scrollbar(app)
+text_scroll.pack(side=tk.RIGHT, fill=tk.Y)
+text_area = Text(app, undo=True, yscrollcommand=text_scroll.set)
+text_area.pack(expand=True, fill='both')
+text_scroll.config(command=text_area.yview)
+
+# File management functions
+def new_file():
+    text_area.delete(1.0, tk.END)
+    app.title("New File - Advanced Secure Messaging Application")
+
+def open_file():
+    file_path = filedialog.askopenfilename()
+    if file_path:
+        text_area.delete(1.0, tk.END)
+        with open(file_path, 'r') as file:
+            text_area.insert(1.0, file.read())
+        app.title(f"{os.path.basename(file_path)} - Advanced Secure Messaging Application")
+
+def save_file():
+    file_path = filedialog.asksaveasfilename(defaultextension=".txt")
+    if file_path:
+        with open(file_path, 'w') as file:
+            file.write(text_area.get(1.0, tk.END))
+        app.title(f"{os.path.basename(file_path)} - Advanced Secure Messaging Application")
 
