@@ -75,7 +75,18 @@ file_menu.add_command(label="Save As", command=lambda: save_as_file())
 file_menu.add_separator()
 file_menu.add_command(label="Exit", command=app.quit)
 
-# Edit menu
+menu_bar = Menu(app)
+app.config(menu=menu_bar)
+
+file_menu = Menu(menu_bar, tearoff=0)
+menu_bar.add_cascade(label="File", menu=file_menu)
+file_menu.add_command(label="New", command=lambda: new_file())
+file_menu.add_command(label="Open", command=lambda: open_file())
+file_menu.add_command(label="Save", command=lambda: save_file())
+file_menu.add_command(label="Save As", command=lambda: save_as_file())
+file_menu.add_separator()
+file_menu.add_command(label="Exit", command=app.quit)
+
 edit_menu = Menu(menu_bar, tearoff=0)
 menu_bar.add_cascade(label="Edit", menu=edit_menu)
 edit_menu.add_command(label="Undo", command=lambda: text_area.edit_undo())
@@ -125,4 +136,32 @@ def save_file():
         with open(file_path, 'w') as file:
             file.write(text_area.get(1.0, tk.END))
         app.title(f"{os.path.basename(file_path)} - Advanced Secure Messaging Application")
+
+def save_as_file():
+    save_file()
+
+# About dialog
+def about():
+    messagebox.showinfo("About", "Advanced Secure Messaging Application\nVersion 2.0")
+
+# Show login dialog on startup
+def show_login_dialog():
+    username = simpledialog.askstring("Username", "Enter your username:")
+    password = simpledialog.askstring("Password", "Enter your password:", show="*")
+    if username and password:
+        if authenticate(username, password):
+            messagebox.showinfo("Login Successful", "You are now logged in.")
+            encryption_key_window()  # Prompt user to set encryption key after login
+        else:
+            messagebox.showerror("Login Failed", "Incorrect username or password.")
+
+# Initialize cryptography
+fernet = load_cryptography()
+
+# Add message sending and receiving functionality
+# (Add buttons or menu options to invoke these as needed)
+
+# Start the GUI application
+show_login_dialog()
+app.mainloop()
 
